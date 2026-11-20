@@ -1,0 +1,19 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.9", "3.11"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install numpy
+      - name: Gradient and invariant tests
+        run: python tests/test_core.py
+      - name: Honesty gates on measured.json
+        run: |
+          python -c "import json;d=json.load(open('results/measured.json'));assert d['verification']['unit_tests_passed']==d['verification']['unit_tests_total'];assert d['experiment_5M_INCOMPLETE']['seq_baseline_at_5M']=='NOT RUN';assert len(d['unsupported_claims'])>=5;print('honesty gates OK')"
