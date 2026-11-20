@@ -1,0 +1,135 @@
+{
+  "repo": "DenseTap",
+  "author": "Kapil Dhinwa",
+  "github": "Kapildhinwa2010-dev",
+  "environment": {
+    "ram_total_kb": 2143812,
+    "cgroup_limit_mb": 2048,
+    "cpu_cores": 2,
+    "blas": "OpenBLAS 0.3.29, 2 threads, SkylakeX",
+    "matmul_gflops_512": 221.7,
+    "pytorch_available": false,
+    "note": "All models hand-written NumPy with manual backprop; PyTorch broken in sandbox."
+  },
+  "verification": {
+    "unit_tests_total": 8,
+    "unit_tests_passed": 8,
+    "gradcheck_seq_worst_relerr": 7.28e-05,
+    "gradcheck_dense_worst_relerr": 4.26e-05,
+    "gradcheck_method": "central finite differences, float64, eps=1e-6, 6 entries/tensor",
+    "gradcheck_sampling": "entries with |analytic grad|>1e-4 to avoid ReLU-kink 0/0 artifacts"
+  },
+  "param_budget_5M": {
+    "config": {
+      "d": 320,
+      "nh": 8,
+      "L": 6,
+      "din": 20,
+      "T": 3,
+      "extra": 128
+    },
+    "dense_params": 5007060,
+    "seq_params": 5007040,
+    "tap_scalars": 20,
+    "overhead_pct": 0.0004
+  },
+  "experiment_20k_COMPLETE": {
+    "task": "synthetic hard toroidal next-point selection",
+    "K": 16,
+    "chance": 0.0625,
+    "T_obs": 3,
+    "horizon": 5,
+    "noise": 0.25,
+    "steps": 1500,
+    "bs": 256,
+    "lr": 0.003,
+    "config": {
+      "d": 24,
+      "nh": 4,
+      "L": 4,
+      "extra": 24
+    },
+    "seq": {
+      "params": 20616,
+      "seeds": [
+        0.8835,
+        0.863,
+        0.8501
+      ],
+      "mean": 0.8655,
+      "std": 0.0138
+    },
+    "dense": {
+      "params": 20625,
+      "seeds": [
+        0.9023,
+        0.8916,
+        0.8843
+      ],
+      "mean": 0.8927,
+      "std": 0.0074
+    },
+    "paired_deltas": [
+      0.0188,
+      0.0286,
+      0.0342
+    ],
+    "mean_delta": 0.0272,
+    "delta_std": 0.0064,
+    "all_seeds_positive": true
+  },
+  "experiment_5M_INCOMPLETE": {
+    "mode": "dense",
+    "seed": 0,
+    "bs": 32,
+    "lr": 0.0003,
+    "warmup_steps": 50,
+    "curve": [
+      {
+        "step": 50,
+        "train_loss": 2.662
+      },
+      {
+        "step": 150,
+        "train_loss": 1.265,
+        "val_acc": 0.8027
+      },
+      {
+        "step": 250,
+        "train_loss": 0.772,
+        "val_acc": 0.8467
+      },
+      {
+        "step": 350,
+        "train_loss": 0.715,
+        "val_acc": 0.8652
+      },
+      {
+        "step": 440,
+        "train_loss": 0.7,
+        "val_acc": 0.8799
+      }
+    ],
+    "wall_seconds": 74.5,
+    "ms_per_step_bs32": 140,
+    "seq_baseline_at_5M": "NOT RUN",
+    "status": "INCOMPLETE - no comparative claim at 5M scale is supported"
+  },
+  "sibling_negative_results": {
+    "yantra_wiring": "no gain vs random/dense/absent graph; 4 configs; delta<1pt; seed sigma 1.3-1.5",
+    "all_to_all_cross_layer_matrix": "unstable: 0.571/0.130 at lr 3e-3; 0.669 at lr 1e-3",
+    "torus_no_information_loss": "FALSE: decaying scan R2~0.006 at T=128; unitary preserves norm exactly but superimposes (token0 R2 0.185->0.027)"
+  },
+  "supported_claims": [
+    "Torus feature lifting: +31.8 points over raw input on synthetic cyclic task, replicated on graph-net and transformer at matched ~10K params.",
+    "Dense cross-layer wiring: +2.72 points over sequential at 20K params, 3/3 seeds positive, delta_std 0.64pt, overhead 9 scalars.",
+    "Dense wiring reduced seed variance at 20K scale (std 1.38pt -> 0.74pt)."
+  ],
+  "unsupported_claims": [
+    "Any advantage at 5M scale (seq baseline not run).",
+    "Any advantage on real language data or pretrained LLMs (never tested).",
+    "Novelty: DenseNet-style cross-layer connections pre-exist; this is replication/measurement.",
+    "Generalization beyond L=4, T=3, one synthetic task.",
+    "Mechanism: taps were never inspected after training; gain is unexplained."
+  ]
+}
