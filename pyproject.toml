@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dense-tap"
+version = "0.2.0"
+description = "Dense cross-layer wiring for transformers: every layer reads every previous layer, for L(L+1)/2-1 extra scalars."
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [{name = "Kapil Dhinwa"}]
+keywords = ["transformer","densenet","cross-layer","residual","numpy","torus","geometry"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = ["numpy>=1.24"]
+
+[project.urls]
+Homepage = "https://github.com/Kapildhinwa2010-dev/DenseTap"
+Issues = "https://github.com/Kapildhinwa2010-dev/DenseTap/issues"
+
+[tool.setuptools]
+packages = ["dense_tap"]
