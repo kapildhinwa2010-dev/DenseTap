@@ -12,12 +12,14 @@
     "note": "All models hand-written NumPy with manual backprop; PyTorch broken in sandbox."
   },
   "verification": {
-    "unit_tests_total": 8,
-    "unit_tests_passed": 8,
+    "unit_tests_total": 17,
+    "unit_tests_passed": 17,
     "gradcheck_seq_worst_relerr": 7.28e-05,
     "gradcheck_dense_worst_relerr": 4.26e-05,
     "gradcheck_method": "central finite differences, float64, eps=1e-6, 6 entries/tensor",
-    "gradcheck_sampling": "entries with |analytic grad|>1e-4 to avoid ReLU-kink 0/0 artifacts"
+    "gradcheck_sampling": "entries with |analytic grad|>1e-4 to avoid ReLU-kink 0/0 artifacts",
+    "core_tests": 8,
+    "module_tests": 9
   },
   "param_budget_5M": {
     "config": {
@@ -131,5 +133,6 @@
     "Novelty: DenseNet-style cross-layer connections pre-exist; this is replication/measurement.",
     "Generalization beyond L=4, T=3, one synthetic task.",
     "Mechanism: taps were never inspected after training; gain is unexplained."
-  ]
+  ],
+  "version": "0.2.0"
 }
