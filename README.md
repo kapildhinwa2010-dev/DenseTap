@@ -2,6 +2,21 @@
 
 **Every layer reads every previous layer - for 20 extra scalars.**
 
+[![ci](https://github.com/Kapildhinwa2010-dev/DenseTap/actions/workflows/ci.yml/badge.svg)](https://github.com/Kapildhinwa2010-dev/DenseTap/actions/workflows/ci.yml)
+![tests](https://img.shields.io/badge/tests-17%2F17%20passing-brightgreen)
+![python](https://img.shields.io/badge/python-3.10%20%7C%203.12-blue)
+![deps](https://img.shields.io/badge/deps-numpy%20only-lightgrey)
+![license](https://img.shields.io/badge/license-MIT-green)
+![status](https://img.shields.io/badge/5M%20benchmark-INCOMPLETE-orange)
+![novelty](https://img.shields.io/badge/novelty%20claim-none-informational)
+
+`+2.72 points` · `20 extra scalars` · `3/3 seeds positive` · `0.0004% param overhead`
+
+> **Honesty contract:** every number here was measured. Unrun experiments are labelled
+> INCOMPLETE and CI fails if that label is removed.
+
+**Contents:** [Idea](#the-idea) · [Verified](#verified) · [Measured](#measured) · [NOT claimed](#not-claimed) · [Quickstart](#quickstart) · [Docs](#docs) · [Status](#status)
+
 > Idea, direction and system design: **Kapil Dhinwa** ([@Kapildhinwa2010-dev](https://github.com/Kapildhinwa2010-dev))
 > Implementation co-built with AI. Every number here was measured in a sandbox; nothing is estimated.
 
@@ -91,6 +106,9 @@ Read this before quoting anything.
   Parameter count without training budget buys nothing.
 
 ### Sibling negative results (kept, not buried)
+
+<details>
+<summary><b>Expand: four falsified hypotheses</b></summary>
 Same experimental arc. Recorded so nobody re-runs them blindly:
 
 | Hypothesis | Verdict |
@@ -100,19 +118,99 @@ Same experimental arc. Recorded so nobody re-runs them blindly:
 | Torus has no information loss | NO - decaying scan R2~0.006 @ T=128; unitary variant preserves norm exactly but superimposes (token-0 R2 0.185 -> 0.027) |
 | Torus feature lifting helps on cyclic data | YES - +31.8 pts, replicated on 2 architectures at matched ~10K params |
 
+</details>
+
 **Lesson from the all-to-all failure:** more connections is not the win.
 *Learned, selective* connections is the win. A full cross-layer matrix dilutes the signal
 and breaks optimisation; 20 scalars that learn where to look do not.
+
+
+## Quickstart
+
+```bash
+git clone https://github.com/Kapildhinwa2010-dev/DenseTap.git
+cd DenseTap
+pip install numpy
+python tests/test_core.py       # 8/8
+python tests/test_modules.py    # 9/9
+python examples/quickstart.py   # 60-second demo (NOT the benchmark)
+```
+
+Reproduce the actual headline result:
+
+```bash
+python -m dense_tap.bench --scale 20k --seeds 3 --steps 1500
+```
+
+Ablate the torus feature map (the control behind the +31.8 point claim):
+
+```bash
+python -m dense_tap.bench --scale 20k --seeds 3 --steps 1500 --no-lift
+```
+
+Check the mechanism (P1 - never run at full length yet):
+
+```bash
+python examples/inspect_taps.py --steps 1500
+```
+
+<details>
+<summary><b>What the tap inspector tells you</b></summary>
+
+It prints per-layer weights, mass on older layers, and entropy.
+If `mean_mass_on_older_layers < 0.10`, the taps collapsed onto the previous layer,
+dense has degenerated to seq, and the +2.72 points needs a different explanation.
+This is the single most important unrun experiment in the repo.
+
+</details>
+
+## Docs
+
+| Document | What it covers |
+|---|---|
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | The equation, param accounting, tap gradient path, known approximations |
+| [REPRODUCE.md](docs/REPRODUCE.md) | Exact commands for every experiment, sandbox profile |
+| [ROADMAP.md](docs/ROADMAP.md) | P0-P3, ordered by value-per-hour, plus known traps |
+| [FAQ.md](docs/FAQ.md) | Novelty, why NumPy, why all-to-all failed, Yantra, losslessness |
+| [measured.json](results/measured.json) | Every number, machine-readable, with unsupported_claims |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | The one rule: no claim without a measurement |
+| [CHANGELOG.md](CHANGELOG.md) | 0.1.0 -> 0.2.0 |
+
+## Citing this honestly
+
+If you reference this work, please carry the caveats with it:
+
+```
+Dhinwa, K. (2026). DENSE-TAP: dense cross-layer wiring for transformers.
+Independent implementation and measurement. +2.72 points over sequential wiring
+at 20K parameters on a synthetic toroidal task (3 seeds, all positive).
+Not novel as a technique; not validated on language data; 5M comparison incomplete.
+https://github.com/Kapildhinwa2010-dev/DenseTap
+```
 
 ## Layout
 
 ```
 DenseTap/
-  dense_tap/core.py       # DenseCrossLayerTF: fwd + hand-derived bwd, seq|dense
-  tests/test_core.py      # 8 tests: gradients, reduction invariant, budget, taps
+  dense_tap/
+    core.py               # DenseCrossLayerTF: fwd + hand-derived bwd, seq|dense
+    data.py               # toroidal task generator + torus_lift feature map
+    train.py              # chunked resumable Adam trainer, paired_report
+    budget.py             # parameter-budget solver + presets
+    bench.py              # CLI: runs BOTH modes, flags INCOMPLETE runs
+  tests/
+    test_core.py          # 8 tests: gradients, reduction invariant, budget, taps
+    test_modules.py       # 9 tests: labels, lift norms, trainer, tap movement
+  examples/
+    quickstart.py         # 60-second demo
+    inspect_taps.py       # P1 mechanism check
   results/measured.json   # every number + explicit unsupported_claims list
-  docs/ROADMAP.md         # what to run when time permits
-  .github/workflows/ci.yml
+  docs/                   # ARCHITECTURE / REPRODUCE / ROADMAP / FAQ
+  .github/
+    workflows/ci.yml      # 2 Python versions, both test files, honesty gate
+    honesty_gate.py       # fails CI if README drifts from measured.json
+    ISSUE_TEMPLATE/       # claim audit, negative result
+  pyproject.toml          # pip-installable
 ```
 
 ## Run
